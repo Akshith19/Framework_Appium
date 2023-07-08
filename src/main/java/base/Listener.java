@@ -22,12 +22,6 @@ public class Listener extends Base implements ITestListener{
 
 	@Override
 	public void onTestFailure(ITestResult result) {
-		
-		  try { 
-			  Base.takeScreenshot(result.getName()); 
-			  } 
-		  catch (IOException e) { 
-		    e.printStackTrace(); }
 		 
 	}
 
