@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.URL;
+import java.time.Duration;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -14,12 +15,11 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.android.AndroidElement;
 import io.appium.java_client.remote.MobileCapabilityType;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
 
 public class Base {
-	public static AndroidDriver<AndroidElement> driver;
+	public static AndroidDriver driver;
 	public static AppiumDriverLocalService service;
 
 	public static AppiumDriverLocalService startServer()
@@ -60,7 +60,7 @@ public class Base {
 		Thread.sleep(10000);
 	}
 	
-	public static AndroidDriver<AndroidElement> capabilities(String appName, String platform) throws IOException, InterruptedException {
+	public static AndroidDriver capabilities(String appName, String platform) throws IOException, InterruptedException {
 		if(platform.equalsIgnoreCase("local"))
 		{
 			localCapabilities(appName);
@@ -73,7 +73,7 @@ public class Base {
 		
 	}
 	
-	public static AndroidDriver<AndroidElement> localCapabilities(String appName) throws IOException, InterruptedException {
+	public static AndroidDriver localCapabilities(String appName) throws IOException, InterruptedException {
 		Runtime.getRuntime().exec("taskkill /F /IM node.exe");
 		Thread.sleep(3000);
 		service=startServer();
@@ -95,27 +95,28 @@ public class Base {
 		{ 
 			startEmulator(); 
 		}
+		
+		cap.setCapability("platformName", "Android");
 
-		cap.setCapability(MobileCapabilityType.PLATFORM_NAME, "Android");
+		cap.setCapability("appium:deviceName",device );
 
-		cap.setCapability(MobileCapabilityType.DEVICE_NAME,device );
+		cap.setCapability("appium:automationName","uiautomator2");
 
-		cap.setCapability(MobileCapabilityType.AUTOMATION_NAME,"uiautomator2");
-
-		cap.setCapability(MobileCapabilityType.APP, app.getAbsolutePath());
+		cap.setCapability("appium:app", app.getAbsolutePath());
+		
 
 		cap.setCapability("ignoreHiddenApiPolicyError", true);
 
-		driver = new AndroidDriver<>(new URL("http://127.0.0.1:4723/wd/hub"), cap);
+		driver = new AndroidDriver(new URL("http://127.0.0.1:4723"), cap);
 
-		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
 
 		return driver;
 
 
 	}
 
-	public static AndroidDriver<AndroidElement> cloudCapabilities(String appName) throws IOException, InterruptedException {
+	public static AndroidDriver cloudCapabilities(String appName) throws IOException, InterruptedException {
 
 		FileInputStream fis = new FileInputStream(System.getProperty("user.dir")+"\\src\\test\\resources\\properties\\config.properties");
 
@@ -144,20 +145,23 @@ public class Base {
 		
 		cap.setCapability("name", "Appium_Test");
 
-		driver = new AndroidDriver<AndroidElement>(
+		driver = new AndroidDriver(
 				new URL("http://hub.browserstack.com/wd/hub"), cap);
 
-		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
 
 		return driver;
 
 
 	}
 	
-	public static void takeScreenshot(String testcaseName) throws IOException
-	{
-		File src=((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
-		FileUtils.copyDirectory(src, new File(System.getProperty("user.dir")+"\\"+testcaseName+".png"));
-	}
+	
+	/*
+	 * public static void takeScreenshot(String testcaseName) throws IOException {
+	 * File src=((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+	 * FileUtils.copyDirectory(src, new
+	 * File(System.getProperty("user.dir")+"\\"+testcaseName+".png")); }
+	 */
+	 
 
 }
